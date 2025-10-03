@@ -12,7 +12,8 @@ type ReporterProps = {
 export default function ErrorReporter({ error, reset }: ReporterProps) {
   /* ─ instrumentation shared by every route ─ */
   const lastOverlayMsg = useRef("");
-  const pollRef = useRef<NodeJS.Timeout>();
+  // In browser environments setInterval returns a number, so use number | null
+  const pollRef = useRef<number | null>(null);
 
   useEffect(() => {
     const inIframe = window.parent !== window;
@@ -65,12 +66,15 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
 
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onReject);
-    pollRef.current = setInterval(pollOverlay, 1000);
+  // setInterval returns a numeric id in the browser
+  pollRef.current = window.setInterval(pollOverlay, 1000);
 
     return () => {
       window.removeEventListener("error", onError);
       window.removeEventListener("unhandledrejection", onReject);
-      pollRef.current && clearInterval(pollRef.current);
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+      }
     };
   }, []);
 

@@ -13,7 +13,7 @@ interface Particle {
 export function ParticleEffect({ trigger }: { trigger: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const particlesRef = useRef<Particle[]>([])
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!trigger || !canvasRef.current) return
@@ -68,7 +68,7 @@ export function ParticleEffect({ trigger }: { trigger: boolean }) {
     animate()
 
     return () => {
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
